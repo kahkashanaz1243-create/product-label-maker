@@ -1,9 +1,12 @@
+
 name: product_label_maker
-description: Offline bilingual product label maker with PDF and PNG export.
+description: Product Label Maker in Hindi and English
 publish_to: "none"
 version: 1.0.0+1
+
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -13,10 +16,11 @@ dependencies:
   printing: ^5.13.4
   share_plus: ^10.1.2
   path_provider: ^2.1.4
-  intl: ^0.19.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+
 flutter:
   uses-material-design: true

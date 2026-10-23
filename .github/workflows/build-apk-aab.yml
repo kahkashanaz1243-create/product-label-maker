@@ -1,61 +1,42 @@
-
 name: Build Product Label Maker APK and AAB
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build Android App
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Check required files
-        run: |
-          test -f pubspec.yaml
-          test -f lib/main.dart
-          echo "Project files found."
-          grep -A 2 '^environment:' pubspec.yaml
-
-      - name: Create Android platform if missing
-        shell: bash
-        run: |
-          if [ ! -d android ]; then
-            flutter create \
-              --platforms=android \
-              --org com.productlabelmaker \
-              --project-name product_label_maker \
-              /tmp/plm_android
-            cp -R /tmp/plm_android/android ./android
-          fi
+      - name: Create Android project scaffold
+        run: flutter create --platforms=android --org com.productlabelmaker --project-name product_label_maker .
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze Dart code
-        continue-on-error: true
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+      - name: Analyze code
+        run: flutter analyze --no-pub
 
       - name: Build APK
         run: flutter build apk --release
@@ -66,9 +47,7 @@ jobs:
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: product-label-maker-release
+          name: product-label-maker-android-build
           path: |
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
-          if-no-files-found: error
-          retention-days: 14

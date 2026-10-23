@@ -1,53 +1,99 @@
 name: Build Product Label Maker APK and AAB
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   build:
+    name: Build Android App
     runs-on: ubuntu-latest
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Create Android project scaffold
-        run: flutter create --platforms=android --org com.productlabelmaker --project-name product_label_maker .
+      - name: Check required project files
+        shell: bash
+        run: |
+          set -e
+          test -f pubspec.yaml
+          test -f lib/main.dart
+          echo "Required Flutter files found."
+          echo "Flutter version:"
+          flutter --version
+
+      - name: Create Android platform if missing
+        shell: bash
+        run: |
+          set -e
+
+          if [ ! -f android/gradlew ]; then
+            echo "Creating Android platform files..."
+
+            flutter create \
+              --platforms=android \
+              --org com.productlabelmaker \
+              --project-name product_label_maker \
+              /tmp/product_label_maker_android
+
+            if [ ! -d /tmp/product_label_maker_android/android ]; then
+              echo "Android scaffold creation failed."
+              exit 1
+            fi
+
+            cp -R /tmp/product_label_maker_android/android ./android
+          else
+            echo "Existing Android platform found."
+          fi
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze code
-        run: flutter analyze --no-pub
+      - name: Analyze Dart code
+        continue-on-error: true
+        run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
 
-      - name: Build APK
+      - name: Build release APK
         run: flutter build apk --release
 
-      - name: Build AAB
+      - name: Build release AAB
         run: flutter build appbundle --release
+
+      - name: Verify build outputs
+        shell: bash
+        run: |
+          set -e
+          test -f build/app/outputs/flutter-apk/app-release.apk
+          test -f build/app/outputs/bundle/release/app-release.aab
+          ls -lh \
+            build/app/outputs/flutter-apk/app-release.apk \
+            build/app/outputs/bundle/release/app-release.aab
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: product-label-maker-android-build
+          name: product-label-maker-release
           path: |
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14

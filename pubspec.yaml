@@ -1,26 +1,27 @@
-
 name: product_label_maker
-description: Product Label Maker in Hindi and English
+description: Professional offline Product Label Maker with PDF, PNG, printer, date picker and barcode QR.
 publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.8
-  shared_preferences: ^2.3.2
-  pdf: ^3.11.1
-  printing: ^5.13.4
-  share_plus: ^10.1.2
-  path_provider: ^2.1.4
+  barcode_widget: ^2.0.4
+  path_provider: ^2.1.5
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  share_plus: ^10.1.4
+  shared_preferences: ^2.3.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

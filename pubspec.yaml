@@ -1,26 +1,38 @@
 name: product_label_maker
-description: Professional offline Product Label Maker with PDF, PNG, printer, date picker and barcode QR.
-publish_to: "none"
+description: "Professional Product Label Maker with PDF, printing, barcode and QR support."
+publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  barcode_widget: ^2.0.4
-  path_provider: ^2.1.5
+
+  # Offline storage
+  shared_preferences: ^2.3.5
+
+  # PDF creation and printing
   pdf: ^3.11.3
   printing: ^5.14.2
+
+  # Share PDF and files
   share_plus: ^10.1.4
-  shared_preferences: ^2.3.5
+
+  # QR code generation
+  qr_flutter: ^4.1.0
+
+  # Barcode generation
+  barcode_widget: ^2.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^5.0.0
 
 flutter:

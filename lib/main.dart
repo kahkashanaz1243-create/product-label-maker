@@ -915,7 +915,6 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
         labelText: label,
         hintText: hint,
       ),
-      validator: required
                 validator: required
           ? (v) {
               if (v == null || v.trim().isEmpty) {

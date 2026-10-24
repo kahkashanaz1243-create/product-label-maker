@@ -313,25 +313,31 @@ class _HomeDashboardState extends State<HomeDashboard> {
             ),
           ),
           const SizedBox(height: 10),
-          const _FeatureRow(
+          _FeatureRow(
             icon: Icons.calendar_month_outlined,
             title: 'तारीख चुनें',
             subtitle: 'निर्माण और एक्सपायरी के लिए कैलेंडर',
+            onTap: () => _open(const LabelEditorPage()),
           ),
-          const _FeatureRow(
+          _FeatureRow(
             icon: Icons.qr_code_2,
             title: 'Barcode / QR',
             subtitle: 'उत्पाद कोड और QR डेटा जोड़ें',
+            onTap: () => _open(const LabelEditorPage()),
           ),
-          const _FeatureRow(
+          _FeatureRow(
             icon: Icons.straighten,
             title: 'Custom Size',
             subtitle: 'अपनी चौड़ाई और ऊंचाई सेट करें',
+            onTap: () => _open(
+              const LabelEditorPage(initialSize: 'Custom size'),
+            ),
           ),
-          const _FeatureRow(
+          _FeatureRow(
             icon: Icons.save_outlined,
             title: 'Offline Storage',
             subtitle: 'लेबल इसी फोन में सेव रहते हैं',
+            onTap: () => _open(const SavedLabelsPage()),
           ),
           const SizedBox(height: 12),
           const Text(
@@ -348,6 +354,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 }
+
 class _DashboardTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -408,36 +415,57 @@ class _FeatureRow extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _FeatureRow({
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: CircleAvatar(
-      backgroundColor: const Color(0xFFE2F2EC),
-      child: Icon(icon, color: brandGreen),
+  Widget build(BuildContext context) => Card(
+    color: Colors.white,
+    elevation: 0,
+    margin: const EdgeInsets.only(bottom: 6),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+      side: const BorderSide(color: Color(0xFFE2EAE7)),
     ),
-    title: Text(
-      title,
-      style: const TextStyle(fontWeight: FontWeight.w600),
+    child: ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 2,
+      ),
+      leading: CircleAvatar(
+        backgroundColor: const Color(0xFFE2F2EC),
+        child: Icon(icon, color: brandGreen),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(subtitle),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 15,
+        color: Colors.black45,
+      ),
     ),
-    subtitle: Text(subtitle),
   );
 }
-
 class LabelEditorPage extends StatefulWidget {
   final ProductLabel? existing;
   final Map<String, String>? template;
+  final String? initialSize;
 
   const LabelEditorPage({
     super.key,
     this.existing,
     this.template,
+    this.initialSize,
   });
 
   @override
@@ -533,9 +561,10 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
     );
 
     _language = e?.language ?? 'both';
-    _size = sizes.containsKey(e?.size)
-        ? e!.size
-        : (e?.size ?? '3 x 2 inch');
+    _size = e?.size ??
+        (sizes.containsKey(widget.initialSize)
+            ? widget.initialSize!
+            : '3 x 2 inch');
 
     if (!sizes.containsKey(_size)) {
       _size = '3 x 2 inch';
@@ -704,8 +733,7 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
 
     Navigator.pop(context, true);
   }
-
-  Future<Uint8List> _pdfBytes(ProductLabel label) async {
+    Future<Uint8List> _pdfBytes(ProductLabel label) async {
     final doc = pw.Document();
 
     final w = label.customWidth * PdfPageFormat.inch;
@@ -890,8 +918,7 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
       validator: required
           ? (v) => (v == null || v.trim().isEmpty)
               ? 'यह जानकारी जरूरी है'
-              : null
-          : null,
+              : null,
     );
   }
 
@@ -1039,91 +1066,6 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
                   onChanged: (v) => setState(
                     () => _theme = v ?? 'Green',
                   ),
-                ),
-              ],
-            ),
-            _SectionCard(
-              title: 'प्रोडक्ट विवरण',
-              icon: Icons.inventory_2_outlined,
-              children: [
-                _field(
-                  'प्रोडक्ट का नाम *',
-                  _name,
-                  hint: 'Herbal Hair Oil',
-                  required: true,
-                ),
-                _field(
-                  'ब्रांड / कंपनी का नाम',
-                  _brand,
-                  hint: 'ब्रांड नाम',
-                ),
-                _field(
-                  'कैटेगरी / श्रेणी',
-                  _category,
-                  hint: 'Oil / Cosmetic / Herbal',
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _field(
-                        'नेट मात्रा',
-                        _quantity,
-                        hint: '100 ml',
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _field(
-                        'MRP (₹)',
-                        _mrp,
-                        keyboard: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _field(
-                        'सेल प्राइस (₹)',
-                        _salePrice,
-                        keyboard: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _field('बैच नंबर', _batch),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _dateField(
-                        'निर्माण तारीख',
-                        _mfg,
-                        true,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _dateField(
-                        'एक्सपायरी तारीख',
-                        _expiry,
-                        false,
-                      ),
-                    ),
-                  ],
-                ),
-                _field(
-                  'निर्माता का नाम और पता',
-                  _manufacturer,
-                  lines: 2,
-                ),
-                _field(
-                  'सामग्री / Ingredients',
-                  _ingredients,
-                  lines: 3,
                 ),
               ],
             ),

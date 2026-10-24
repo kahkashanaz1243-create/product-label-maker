@@ -916,9 +916,14 @@ class _LabelEditorPageState extends State<LabelEditorPage> {
         hintText: hint,
       ),
       validator: required
-          ? (v) => (v == null || v.trim().isEmpty)
-              ? 'यह जानकारी जरूरी है'
-              : null,
+                validator: required
+          ? (v) {
+              if (v == null || v.trim().isEmpty) {
+                return 'यह जानकारी जरूरी है';
+              }
+              return null;
+            }
+          : null,
     );
   }
 
